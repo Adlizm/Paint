@@ -15,7 +15,7 @@ white = (255,255,255)
 
 colorSelected = black
 
-tipo = {
+typeTool = {
 	'line': False,
 	'rect': False,
 	'circle': False,
@@ -162,7 +162,7 @@ def Square(x1,y1,x2,y2,color):
 def mouseDown(pos,button):
 	global clicked,colorSelected
 	if pos[1] <= btHeight:
-		if tipo['polygon']:
+		if typeTool['polygon']:
 			pygame.image.save(screen,'screen.png')
 			nextPoints.clear()
 		
@@ -194,19 +194,19 @@ def mouseDown(pos,button):
 		clicked = 0
 	else:
 		if button == 1:
-			if tipo['fill']:
+			if typeTool['fill']:
 				getcolor = screen.get_at((pos[0],pos[1]))
 				Fill(pos[0],pos[1],colorSelected,getcolor)
 			else:
 				clicked = clicked + 1
 				nextPoints.append(pos[0]);
 				nextPoints.append(pos[1]);
-				if clicked == 4 and tipo['curve'] :
+				if clicked == 4 and typeTool['curve'] :
 					pygame.image.save(screen,'screen.png')					
 					clicked = 0
 					nextPoints.clear()
 		else:
-			if tipo['polygon']:
+			if typeTool['polygon']:
 				pygame.image.save(screen,'screen.png')	
 				nextPoints.clear()
 				clicked = 0
@@ -224,33 +224,33 @@ def mouseUp(pos,button):
 def select(t):
 	global nPontC
 
-	tipo['line'] = False
-	tipo['rect'] = False
-	tipo['square'] = False
-	tipo['circle'] = False
-	tipo['polygon'] = False
-	tipo['curve'] = False
-	tipo['fill'] = False
+	typeTool['line'] = False
+	typeTool['rect'] = False
+	typeTool['square'] = False
+	typeTool['circle'] = False
+	typeTool['polygon'] = False
+	typeTool['curve'] = False
+	typeTool['fill'] = False
 	if t == 'r':
-		tipo['rect'] = True
+		typeTool['rect'] = True
 		nPontC = 2
 	elif t == 'p':
-		tipo['polygon'] = True
+		typeTool['polygon'] = True
 		nPontC = None
 	elif t == 'c':
-		tipo['circle'] = True
+		typeTool['circle'] = True
 		nPontC = 2
 	elif t == 'l':
-		tipo['line'] = True
+		typeTool['line'] = True
 		nPontC = 2
 	elif t == 's':
-		tipo['curve'] = True
+		typeTool['curve'] = True
 		nPontC = 4
 	elif t == 'q':
-		tipo['square'] = True
+		typeTool['square'] = True
 		nPontC = 2
 	elif t == 'f':
-		tipo['fill'] = True
+		typeTool['fill'] = True
 		nPontC = 1
 
 def mouseMove(pos):
@@ -269,18 +269,18 @@ def drawFigureInDev():
 
 	if len(nextPoints) >= 2:
 		if len(nextPoints) == 2 and nPontC == 2:
-			if tipo['line']:
+			if typeTool['line']:
 				Line(mouseX,mouseY,nextPoints[0],nextPoints[1],colorSelected)
-			elif tipo['rect']:
+			elif typeTool['rect']:
 				Rect(mouseX,mouseY,nextPoints[0],nextPoints[1],colorSelected)
-			elif tipo['circle']:
+			elif typeTool['circle']:
 				dx = mouseX - nextPoints[0]
 				dy = mouseY - nextPoints[1]
 				r = int(math.sqrt(dx*dx + dy*dy))
 				Circle(nextPoints[0],nextPoints[1],r,colorSelected)
-			elif tipo['square']:
+			elif typeTool['square']:
 				Square(nextPoints[0],nextPoints[1],mouseX,mouseY,colorSelected)
-		elif tipo['curve']:
+		elif typeTool['curve']:
 			pt = []
 			length = len(nextPoints)
 			for index in range(nPontC*2):
@@ -290,7 +290,7 @@ def drawFigureInDev():
 				elif index < length:
 					pt.append(nextPoints[index])
 			Curve(pt[0],pt[1],pt[2],pt[3],pt[4],pt[5],pt[6],pt[7],colorSelected)
-		elif tipo['polygon']:
+		elif typeTool['polygon']:
 			if clicked == 1:
 				Line(nextPoints[0],nextPoints[1],mouseX,mouseY,colorSelected)
 			else:
