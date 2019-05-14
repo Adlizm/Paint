@@ -123,25 +123,30 @@ def Polygon(pt,color):
 	Line(pt[0],pt[1],pt[length - 2],pt[length - 1],color)
 
 
-def Curve(x1,y1,x2,y2,x3,y3,x4,y4,color):
+def Curve(pt,color):
 	p = 100
 	increment = 1/p
-	t = 0;
-	x0 = x1
-	y0 = y1
-	for i in range(p):
-		t2 = t*t
-		t3 = t2 * t
+	length = len(pt)
+	nCurves = int(length/2 - 3)
+	x0 = pt[0]
+	y0 = pt[1]
+	for c in range(nCurves):
+		t = 0;
+		x1,x2,x3,x4 = pt[c*2],pt[c*2+2],pt[c*2+4],pt[c*2+6]
+		y1,y2,y3,y4 = pt[c*2+1],pt[c*2+3],pt[c*2+5],pt[c*2+7]
+		for i in range(p):
+			t2 = t*t
+			t3 = t2 * t
 
-		x = (-t3 + 3*t2 - 3*t + 1)*x1 + (3*t3 - 6*t2 + 3*t)*x2 + (-3*t3 + 3*t2)*x3+ t3*x4
-		y = (-t3 + 3*t2 - 3*t + 1)*y1 + (3*t3 - 6*t2 + 3*t)*y2 + (-3*t3 + 3*t2)*y3+ t3*y4
-		x = round(x)
-		y = round(y)
+			x = ((-t3 + 3*t2 - 3*t + 1)*x1 + (3*t3 - 6*t2 + 4)*x2 + (-3*t3 + 3*t2 + 3*t + 1)*x3+ t3*x4)/6
+			y = ((-t3 + 3*t2 - 3*t + 1)*y1 + (3*t3 - 6*t2 + 4)*y2 + (-3*t3 + 3*t2 + 3*t + 1)*y3+ t3*y4)/6
+			x = int(x)
+			y = int(y)
 
-		Line(x0,y0,x,y,color) 
-		x0 = x
-		y0 = y
-		t = t + increment
+			Line(x0,y0,x,y,color) 
+			x0 = x
+			y0 = y
+			t = t + increment
 
 def Square(x1,y1,x2,y2,color):
 	dx = x1 - x2
@@ -162,7 +167,7 @@ def Square(x1,y1,x2,y2,color):
 def mouseDown(pos,button):
 	global clicked,colorSelected
 	if pos[1] <= btHeight:
-		if typeTool['polygon']:
+		if typeTool['polygon'] or typeTool['curve']:
 			pygame.image.save(screen,'screen.png')
 			nextPoints.clear()
 		
@@ -201,12 +206,8 @@ def mouseDown(pos,button):
 				clicked = clicked + 1
 				nextPoints.append(pos[0]);
 				nextPoints.append(pos[1]);
-				if clicked == 4 and typeTool['curve'] :
-					pygame.image.save(screen,'screen.png')					
-					clicked = 0
-					nextPoints.clear()
 		else:
-			if typeTool['polygon']:
+			if typeTool['polygon'] or typeTool['curve']:
 				pygame.image.save(screen,'screen.png')	
 				nextPoints.clear()
 				clicked = 0
@@ -245,7 +246,7 @@ def select(t):
 		nPontC = 2
 	elif t == 's':
 		typeTool['curve'] = True
-		nPontC = 4
+		nPontC = None
 	elif t == 'q':
 		typeTool['square'] = True
 		nPontC = 2
@@ -281,15 +282,20 @@ def drawFigureInDev():
 			elif typeTool['square']:
 				Square(nextPoints[0],nextPoints[1],mouseX,mouseY,colorSelected)
 		elif typeTool['curve']:
-			pt = []
-			length = len(nextPoints)
-			for index in range(nPontC*2):
-				if index >= length - 1 and index%2 == 0:
-					pt.append(mouseX)
-					pt.append(mouseY)
-				elif index < length:
+			if clicked == 1:
+				Line(nextPoints[0],nextPoints[1],mouseX,mouseY,colorSelected)
+			else:
+				pt = []
+				length = len(nextPoints)
+				pt.append(nextPoints[0])
+				pt.append(nextPoints[1])
+				for index in range(length):
 					pt.append(nextPoints[index])
-			Curve(pt[0],pt[1],pt[2],pt[3],pt[4],pt[5],pt[6],pt[7],colorSelected)
+				pt.append(mouseX)
+				pt.append(mouseY)
+				pt.append(mouseX)
+				pt.append(mouseY)
+				Curve(pt,colorSelected)
 		elif typeTool['polygon']:
 			if clicked == 1:
 				Line(nextPoints[0],nextPoints[1],mouseX,mouseY,colorSelected)
@@ -331,4 +337,4 @@ while run:
 			mouseUp(event.pos,event.button)
 	
 	pygame.display.flip()
-	clock.tick(30)	
+	clock.tick(30)
